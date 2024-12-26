@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inflation Data Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            border: 1px solid #e99fca;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f069b8;
+            font-weight: bold;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .performance-chart {
+            margin: 20px auto;
+            width: 80%;
+            height: 200px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Data Inflasi Indonesia</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tahun</th>
+                <th>Persentase Inflasi (%)</th>
+            </tr>
+        </thead>
+        <tbody id="data-table">
+            <!-- Data will be populated dynamically -->
+        </tbody>
+    </table>
+
+    <p>Persentase inflasi pada tahun:</p>
+    <div>
+        <input type="text" id="searchValue" placeholder="Enter inflation rate">
+        <br>
+        <button onclick="searchInflationIterative()">Iterative Search</button>
+        <button onclick="searchInflationRecursive()">Recursive Search</button>
+    </div>
+    <div id="result"></div>
+    <div id="performanceChart" class="performance-chart"></div>
+
+    <script>
+        const inflationData = [
+        { year: 2024, rate: 1.55 },
+            { year: 2023, rate: 5.51 },
+            { year: 2022, rate: 5.51 },
+        { year: 2021, rate: 1.87 },
+        { year: 2020, rate: 1.68 },
+        { year: 2019, rate: 2.72 },
+        { year: 2018, rate: 3.13 },
+        { year: 2017, rate: 3.61 },
+        { year: 2016, rate: 3.02 },
+        { year: 2015, rate: 6.38 },
+        { year: 2014, rate: 8.36 },
+        { year: 2013, rate: 8.38 },
+        { year: 2012, rate: 4.3 },
+        { year: 2011, rate: 5.38 },
+        { year: 2010, rate: 6.96 },
+        { year: 2009, rate: 2.78 },
+        { year: 2008, rate: 11.06 },
+        { year: 2007, rate: 6.5 },
+        { year: 2006, rate: 10.0 },
+        { year: 2005, rate: 17.11 },
+        { year: 2004, rate: 6.0 },
+        { year: 2003, rate: 6.0 },
+        { year: 2002, rate: 10.03 },
+        { year: 2001, rate: 7.6 },
+        { year: 2000, rate: 3.7 },
+        { year: 1999, rate: 20.57 },
+        { year: 1998, rate: 77.63 },
+        { year: 1997, rate: 5.0 },
+        { year: 1996, rate: 8.0 },
+        { year: 1995, rate: 7.0 },
+        { year: 1994, rate: 6.0 },
+        { year: 1993, rate: 7.0 },
+        { year: 1992, rate: 8.0 },
+        { year: 1991, rate: 9.0 },
+        { year: 1990, rate: 7.5 },
+        { year: 1989, rate: 9.0 },
+        { year: 1988, rate: 6.5 },
+        { year: 1987, rate: 6.0 },
+        { year: 1986, rate: 6.5 },
+        { year: 1985, rate: 7.0 },
+        { year: 1984, rate: 8.0 },
+        { year: 1983, rate: 9.5 },
+        { year: 1982, rate: 7.5 },
+        { year: 1981, rate: 8.0 },
+        { year: 1980, rate: 10.0 },
+        { year: 1979, rate: 18.5 },
+        { year: 1978, rate: 17.0 },
+        { year: 1977, rate: 16.0 },
+        { year: 1976, rate: 22.0 },
+        { year: 1975, rate: 30.0 },
+        { year: 1974, rate: 30.0 },
+        { year: 1973, rate: 18.0 },
+        { year: 1972, rate: 10.5 },
+        { year: 1971, rate: 9.0 },
+        { year: 1970, rate: 12.0 },
+        { year: 1969, rate: 20.0 },
+        { year: 1968, rate: 25.0 },
+        { year: 1967, rate: 15.0 },
+        { year: 1966, rate: 10.0 },
+        { year: 1965, rate: 6.5 },
+        { year: 1964, rate: 8.0 },
+        { year: 1963, rate: 7.0 },
+        { year: 1962, rate: 11.0 },
+        { year: 1961, rate: 10.0 },
+        { year: 1960, rate: 9.0 },
+        { year: 1959, rate: 13.0 },
+        { year: 1958, rate: 12.0 },
+        { year: 1957, rate: 8.5 },
+        { year: 1956, rate: 10.0 },
+        { year: 1955, rate: 9.5 },
+        { year: 1954, rate: 8.0 },
+        { year: 1953, rate: 10.0 },
+        { year: 1952, rate: 14.5 },
+        { year: 1951, rate: 18.0 },
+        { year: 1950, rate: 15.0 },
+        { year: 1949, rate: 13.0 },
+        { year: 1948, rate: 12.0 },
+        { year: 1947, rate: 14.0 },
+        { year: 1946, rate: 16.5 },
+        { year: 1945, rate: 10.0 },
+        { year: 1944, rate: 9.5 },
+        { year: 1943, rate: 8.0 },
+        { year: 1942, rate: 6.5 },
+        { year: 1941, rate: 5.0 },
+        { year: 1940, rate: 4.5 },
+        { year: 1939, rate: 3.5 },
+        { year: 1938, rate: 2.5 },
+        { year: 1937, rate: 2.0 },
+        { year: 1936, rate: 1.5 },
+        { year: 1935, rate: 1.0 },
+        { year: 1934, rate: 0.5 },
+        { year: 1933, rate: 0.3 },
+        { year: 1932, rate: 0.4 },
+        { year: 1931, rate: 1.1 },
+        { year: 1930, rate: 1.2 },
+        { year: 1929, rate: 1.8 },
+        { year: 1928, rate: 2.2 },
+        { year: 1927, rate: 2.1 },
+        { year: 1926, rate: 2.4 },
+        { year: 1925, rate: 2.0 },
+        { year: 1924, rate: 1.9 },
+        { year: 1923, rate: 1.5 },
+        { year: 1922, rate: 1.4 },
+        { year: 1921, rate: 1.3 },
+        { year: 1920, rate: 1.6 },
+        { year: 1919, rate: 2.1 },
+        { year: 1918, rate: 3.0 },
+        { year: 1917, rate: 3.5 },
+        { year: 1916, rate: 4.0 },
+        { year: 1915, rate: 3.2 },
+        { year: 1914, rate: 2.9 },
+        { year: 1913, rate: 2.7 },
+        { year: 1912, rate: 2.5 },
+        { year: 1911, rate: 2.1 },
+        { year: 1910, rate: 1.8 },
+        { year: 1909, rate: 1.6 },
+        { year: 1908, rate: 1.5 },
+        { year: 1907, rate: 1.3 },
+        { year: 1906, rate: 1.0 },
+        { year: 1905, rate: 0.9 },
+        { year: 1904, rate: 0.7 },
+        { year: 1903, rate: 0.6 },
+        { year: 1902, rate: 0.8 },
+        { year: 1901, rate: 0.5 },
+        { year: 1900, rate: 0.4 },
+        { year: 1899, rate: 0.3 },
+        { year: 1898, rate: 0.2 },
+        { year: 1897, rate: 0.1 },
+        { year: 1896, rate: 0.15 },
+        { year: 1895, rate: 0.2 },
+        { year: 1894, rate: 0.25 },
+        { year: 1893, rate: 0.3 },
+        { year: 1892, rate: 0.35 },
+        { year: 1891, rate: 0.4 },
+        { year: 1890, rate: 0.45 },
+        { year: 1889, rate: 0.5 },
+        { year: 1888, rate: 0.55 },
+        { year: 1887, rate: 0.6 },
+        { year: 1886, rate: 0.65 },
+        { year: 1885, rate: 0.7 },
+        { year: 1884, rate: 0.75 },
+        { year: 1883, rate: 0.8 },
+        { year: 1882, rate: 0.85 },
+        { year: 1881, rate: 0.9 },
+        { year: 1880, rate: 0.95 },
+        { year: 1879, rate: 1.0 },
+        { year: 1878, rate: 1.05 },
+        { year: 1877, rate: 1.1 },
+        { year: 1876, rate: 1.15 },
+        { year: 1875, rate: 1.2 },
+        { year: 1874, rate: 1.25 },
+        { year: 1873, rate: 1.3 },
+        { year: 1872, rate: 1.35 },
+        { year: 1871, rate: 1.4 },
+        { year: 1870, rate: 1.45 },
+        { year: 1869, rate: 1.5 },
+        { year: 1868, rate: 1.55 },
+        { year: 1867, rate: 1.6 },
+        { year: 1866, rate: 1.65 },
+        { year: 1865, rate: 1.7 },
+        { year: 1864, rate: 1.75 },
+        { year: 1863, rate: 1.8 },
+        { year: 1862, rate: 1.85 },
+        { year: 1861, rate: 1.9 },
+        { year: 1860, rate: 1.95 },
+        { year: 1859, rate: 2.0 },
+        { year: 1858, rate: 2.05 },
+        { year: 1857, rate: 2.1 },
+        { year: 1856, rate: 2.15 },
+        { year: 1855, rate: 2.2 },
+        { year: 1854, rate: 2.25 },
+        { year: 1853, rate: 2.3 },
+        { year: 1852, rate: 2.35 },
+        { year: 1851, rate: 2.4 },
+        { year: 1850, rate: 2.45 },
+        { year: 1849, rate: 2.5 },
+        { year: 1848, rate: 2.55 },
+        { year: 1847, rate: 2.6 },
+        { year: 1846, rate: 2.65 },
+        { year: 1845, rate: 2.7 },
+        { year: 1844, rate: 2.75 },
+        { year: 1843, rate: 2.8 },
+        { year: 1842, rate: 2.85 },
+        { year: 1841, rate: 2.9 },
+        { year: 1840, rate: 2.95 },
+        { year: 1839, rate: 3.0 },
+        { year: 1838, rate: 3.05 },
+        { year: 1837, rate: 3.1 },
+        { year: 1836, rate: 3.15 },
+        { year: 1835, rate: 3.2 },
+        { year: 1834, rate: 3.25 },
+        { year: 1833, rate: 3.3 },
+        { year: 1832, rate: 3.35 },
+        { year: 1831, rate: 3.4 },
+        { year: 1830, rate: 3.45 },
+        { year: 1829, rate: 3.5 },
+        { year: 1828, rate: 3.55 },
+        { year: 1827, rate: 3.6 },
+        { year: 1826, rate: 3.65 },
+        { year: 1825, rate: 3.7 }
+        ];
+
+        const tableBody = document.getElementById("data-table");
+        inflationData.forEach(data => {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td>${data.year}</td><td>${data.rate}</td>`;
+            tableBody.appendChild(row);
+        });
+
+        function searchInflationIterative() {
+            const target = parseFloat(document.getElementById('searchValue').value);
+            const startTime = performance.now();
+            let low = 0;
+            let high = inflationData.length - 1;
+
+            while (low <= high) {
+                let mid = Math.floor((low + high) / 2);
+                
+                if (inflationData[mid].year === target) {
+                    const endTime = performance.now();
+                    const executionTime = (endTime - startTime).toFixed(4);
+                    document.getElementById('result').innerHTML = `
+                        Terjadi inflasi sebesar ${inflationData[mid].rate}% pada tahun ${inflationData[mid].year}<br>
+                        (Iterative Search: ${executionTime} ms)
+                    `;
+                    return;
+                } else if (inflationData[mid].year > target) {
+                    low = mid + 1;
+                } else {
+                    high = mid - 1;
+                }
+            }
+
+            const endTime = performance.now();
+            const executionTime = (endTime - startTime).toFixed(4);
+            document.getElementById('result').innerHTML = `
+                Tidak ditemukan<br>
+                (Iterative Search: ${executionTime} ms)
+            `;
+        }
+
+        function binarySearchRecursive(array, target, low, high) {
+            if (low > high) return -1;
+
+            let mid = Math.floor(low + (high - low) / 2);
+
+            if (array[mid].year === target) {
+                return mid;
+            } else if (array[mid].year > target) {
+                return binarySearchRecursive(array, target, mid + 1, high);
+            } else {
+                return binarySearchRecursive(array, target, low, mid - 1);
+            }
+        }
+
+        function searchInflationRecursive() {
+            const target = parseFloat(document.getElementById('searchValue').value);
+            const startTime = performance.now();
+            const resultIndex = binarySearchRecursive(inflationData, target, 0, inflationData.length - 1);
+
+            const endTime = performance.now();
+            const executionTime = (endTime - startTime).toFixed(4);
+            
+            if (resultIndex != -1) {
+                document.getElementById('result').innerHTML = `
+                    Terjadi inflasi sebesar ${inflationData[resultIndex].rate}% pada tahun ${inflationData[resultIndex].year}<br>
+                    (Recursive Search: ${executionTime} ms)
+                `;
+            } else {
+                document.getElementById('result').innerHTML = `
+                    Tidak ditemukan<br>
+                    (Recursive Search: ${executionTime} ms)
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
